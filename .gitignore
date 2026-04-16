@@ -1,0 +1,2 @@
+# Environment – never commit secrets
+.env

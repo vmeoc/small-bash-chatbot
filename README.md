@@ -30,25 +30,30 @@ All three are typically pre-installed on macOS.
 
 ## How to Run
 
-### 1. Set your API key
+### 1. Create your `.env` file
 
 ```bash
-export API_KEY=your_key_here
+cp .env.example .env
 ```
 
-### 2. (Optional) Override defaults
+Then edit `.env` and fill in your values:
 
-```bash
-export API_URL="https://your-endpoint/enterpriseai/v1/chat/completions"
-export MODEL="testvince"
-export MAX_TOKENS="512"
+```
+API_KEY=your_api_key_here
+API_URL=https://<host>/enterpriseai/v1/chat/completions
+MODEL=testvince
+# MAX_TOKENS=512   # optional, defaults to 512
 ```
 
-### 3. Start the chatbot
+> `.env` is git-ignored and must never be committed.
+
+### 2. Start the chatbot
 
 ```bash
 ./chatbot.sh
 ```
+
+Environment variables set in the shell take precedence over `.env` values.
 
 ---
 

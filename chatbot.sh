@@ -5,9 +5,23 @@
 
 set -euo pipefail
 
+# ── Load .env (if present, env vars already set take precedence) ──────────────
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ENV_FILE="${SCRIPT_DIR}/.env"
+if [[ -f "$ENV_FILE" ]]; then
+  while IFS= read -r _line || [[ -n "$_line" ]]; do
+    [[ "$_line" =~ ^[[:space:]]*# ]] && continue   # skip comments
+    [[ -z "${_line// }" ]]           && continue   # skip blank lines
+    _key="${_line%%=*}"
+    _val="${_line#*=}"
+    [[ -z "${!_key:-}" ]] && export "$_key"="$_val"
+  done < "$ENV_FILE"
+  unset _line _key _val
+fi
+
 # ── Configuration ─────────────────────────────────────────────────────────────
-API_URL="${API_URL:-https://10-54-94-16.sslip.nutanixdemo.com/enterpriseai/v1/chat/completions}"
-MODEL="${MODEL:-testvince}"
+API_URL="${API_URL:-}"
+MODEL="${MODEL:-}"
 MAX_TOKENS="${MAX_TOKENS:-512}"
 
 # ── Colours ───────────────────────────────────────────────────────────────────
@@ -29,8 +43,10 @@ require_cmd curl
 require_cmd jq
 require_cmd python3   # used only for JSON escaping in the message builder
 
-# ── API key check ─────────────────────────────────────────────────────────────
-[[ -z "${API_KEY:-}" ]] && die "API_KEY environment variable is not set.\nExport it first:\n  export API_KEY=your_key_here"
+# ── Required variable checks ──────────────────────────────────────────────────
+[[ -z "${API_KEY:-}"  ]] && die "API_KEY is not set. Add it to .env or export it."
+[[ -z "${API_URL:-}"  ]] && die "API_URL is not set. Add it to .env or export it."
+[[ -z "${MODEL:-}"    ]] && die "MODEL is not set. Add it to .env or export it."
 
 # ── Conversation history (JSON array kept as a string) ────────────────────────
 HISTORY='[]'
